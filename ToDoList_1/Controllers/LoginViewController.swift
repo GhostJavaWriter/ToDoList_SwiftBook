@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  LoginViewController.swift
 //  ToDoList_1
 //
 //  Created by Bair Nadtsalov on 4.11.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class LoginViewController: UIViewController {
     
     //MARK: - Properties
     
@@ -19,17 +19,24 @@ class ViewController: UIViewController {
     private var registerButton = UIButton()
 
     //MARK: - Life cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(red: 118/255,
-                                       green: 190/255,
-                                       blue: 208/255,
-                                       alpha: 1)
+        view.backgroundColor = .pagesBackgroundColor
         configureSubviews()
+    }
+    
+    //MARK: - Actions
+    
+    @objc func loginTapped() {
+        let navController = UINavigationController(rootViewController: TasksViewController())
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
     }
 
     //MARK: - Support functions
+    
     private func configureSubviews() {
         
         // Common configuration
@@ -112,6 +119,7 @@ class ViewController: UIViewController {
         loginButton.backgroundColor = loginBackground
         loginButton.layer.cornerRadius = cornerRadius
         loginButton.titleLabel?.font = UIFont(name: fontName, size: loginFontSize)
+        loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
         bottomStackView.addArrangedSubview(loginButton)
         
         registerButton.tintColor = labelsTextColor
