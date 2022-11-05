@@ -22,8 +22,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //TODO: fix backgroud color. It has to sute to red color of warning text
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = UIColor(red: 118/255,
+                                       green: 190/255,
+                                       blue: 208/255,
+                                       alpha: 1)
         configureSubviews()
     }
 
@@ -33,17 +35,19 @@ class ViewController: UIViewController {
         // Common configuration
         let fontName = "Tamil Sangam MN"
         let titleFontSize: CGFloat = 40
+        let warningTextColor = UIColor.red
         let warningFontSize: CGFloat = 18
         
         let registerFontSize: CGFloat = 14
         let loginFontSize: CGFloat = 18
-        let loginBackground = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
+        let loginBackground = UIColor(white: 1, alpha: 0.5)
         let buttonsWidthRation: CGFloat = 0.5
         let cornerRadius: CGFloat = 5
         
         let labelsTextColor = UIColor.white
         let textFieldsBackgroundColor = UIColor.white
-        let warningTextColor = UIColor.red
+        
+        let textFieldsHeight: CGFloat = 30
         
         let spaceBtwStackViews: CGFloat = 50
         let spaceBtwSubviews: CGFloat = 10
@@ -84,11 +88,13 @@ class ViewController: UIViewController {
         //TODO: fix placeholder text edge insets
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
         emailTextField.placeholder = "Email"
+        emailTextField.clearButtonMode = .always
         emailTextField.backgroundColor = textFieldsBackgroundColor
         middleStackView.addArrangedSubview(emailTextField)
         
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
         passwordTextField.isSecureTextEntry = true
+        passwordTextField.clearButtonMode = .always
         passwordTextField.placeholder = "Password"
         passwordTextField.backgroundColor = textFieldsBackgroundColor
         middleStackView.addArrangedSubview(passwordTextField)
@@ -124,8 +130,10 @@ class ViewController: UIViewController {
             
             emailTextField.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
                                                   multiplier: textFieldsWidthRatio),
+            emailTextField.heightAnchor.constraint(equalToConstant: textFieldsHeight),
             passwordTextField.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
                                                      multiplier: textFieldsWidthRatio),
+            passwordTextField.heightAnchor.constraint(equalToConstant: textFieldsHeight),
             loginButton.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
                                                multiplier: buttonsWidthRation),
             registerButton.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
