@@ -19,6 +19,7 @@ class LoginViewController: UIViewController {
     private var passwordTextField = UITextField()
     private var loginButton = UIButton()
     private var registerButton = UIButton()
+    private let generalStackView = UIStackView()
 
     //MARK: - Life cycle
     
@@ -27,6 +28,11 @@ class LoginViewController: UIViewController {
         
         view.backgroundColor = .pagesBackgroundColor
         configureSubviews()
+        
+        // Add observers to adjust view when keyboard will show and hide
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
     //MARK: - Actions
@@ -35,6 +41,19 @@ class LoginViewController: UIViewController {
         let navController = UINavigationController(rootViewController: TasksViewController())
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)
+    }
+    
+    @objc func keyboardWillShow(notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        guard let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+
+        let shift = generalStackView.frame.size.height + generalStackView.frame.origin.y - keyboardFrame.origin.y
+        
+        view.frame.origin.y = -shift
+    }
+    
+    @objc func keyboardWillHide(notification: Notification) {
+        view.frame.origin.y = .zero
     }
 
     //MARK: - Support functions
@@ -62,8 +81,7 @@ class LoginViewController: UIViewController {
         let spaceBtwSubviews: CGFloat = 10
         let generalStackViewPadding: CGFloat = 40
         let textFieldsWidthRatio: CGFloat = 0.75
-        
-        let generalStackView = UIStackView()
+                
         generalStackView.translatesAutoresizingMaskIntoConstraints = false
         generalStackView.alignment = .center
         generalStackView.axis = .vertical
@@ -94,7 +112,6 @@ class LoginViewController: UIViewController {
         middleStackView.spacing = spaceBtwSubviews
         generalStackView.addArrangedSubview(middleStackView)
         
-        //TODO: fix placeholder text edge insets
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
         emailTextField.placeholder = "Email"
         emailTextField.clearButtonMode = .always
