@@ -5,6 +5,8 @@
 //  Created by Bair Nadtsalov on 4.11.2022.
 //
 
+// TODO: fix button behavior. It should animate when tapped
+
 import UIKit
 
 class LoginViewController: UIViewController {

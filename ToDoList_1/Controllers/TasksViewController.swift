@@ -33,7 +33,6 @@ class TasksViewController: UIViewController {
         title = "Tasks"
         view.backgroundColor = .pagesBackgroundColor
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
-        //addButton.tintColor = .white
         navigationItem.rightBarButtonItem = addButton
     }
     // MARK: Actions
