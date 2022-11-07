@@ -27,6 +27,9 @@ class LoginViewController: UIViewController {
     private var loginButton = UIButton()
     private var registerButton = UIButton()
     private let generalStackView = UIStackView()
+    
+    //database
+    private var ref: DatabaseReference!
 
     //MARK: - Life cycle
     
@@ -35,6 +38,9 @@ class LoginViewController: UIViewController {
         
         view.backgroundColor = .pagesBackgroundColor
         configureSubviews()
+        
+        // Database
+        ref = Database.database().reference(withPath: "users")
         
         // Check user authentication
         Auth.auth().addStateDidChangeListener { [weak self] auth, user in
@@ -103,16 +109,20 @@ class LoginViewController: UIViewController {
             displayWarningLabel(with: "Empty field(s)")
             return
         }
+        
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] (user, error) in
-            if error == nil {
-                if user != nil {
-                    
-                } else {
-                    self?.displayWarningLabel(with: "user = nil")
-                }
-            } else {
-                self?.displayWarningLabel(with: "error occured: \(error!)")
+            
+            guard error == nil,
+                  user != nil
+            else {
+                let desribe = "Error ocured when creating user"
+                self?.displayWarningLabel(with: desribe)
+                print(error?.localizedDescription ?? desribe)
+                return
             }
+            
+            let userRef = self?.ref.child((user?.user.uid)!)
+            userRef?.setValue(["email":user?.user.email])
         }
     }
     
