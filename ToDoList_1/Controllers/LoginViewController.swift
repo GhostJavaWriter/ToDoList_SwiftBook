@@ -6,6 +6,8 @@
 //
 
 // TODO: fix button behavior. It should animate when tapped
+// TODO: add user name for title of tasks page
+// TODO: add alert when user successful register
 
 import UIKit
 import Firebase
@@ -34,10 +36,24 @@ class LoginViewController: UIViewController {
         view.backgroundColor = .pagesBackgroundColor
         configureSubviews()
         
+        // Check user authentication
+        Auth.auth().addStateDidChangeListener { [weak self] auth, user in
+            if user != nil {
+                self?.showTasksViewController()
+            }
+        }
+        
         // Add observers to adjust view when keyboard will show and hide
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        emailTextField.text = ""
+        passwordTextField.text = ""
     }
     
     //MARK: - Actions
@@ -90,14 +106,12 @@ class LoginViewController: UIViewController {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] (user, error) in
             if error == nil {
                 if user != nil {
-                    // TODO: add user name for title of tasks page
-                    self?.showTasksViewController()
+                    
                 } else {
                     self?.displayWarningLabel(with: "user = nil")
                 }
             } else {
                 self?.displayWarningLabel(with: "error occured: \(error!)")
-                print(error?.localizedDescription)
             }
         }
     }

@@ -62,7 +62,6 @@
 				7148D1B9DB75D574C3F8E3A0 /* Pods-ToDoList_1.debug.xcconfig */,
 				43090411027EEB521D5809DC /* Pods-ToDoList_1.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -100,8 +99,8 @@
 		DE0814E3291650E000D72875 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				DE0814DF29164E6C00D72875 /* TasksViewController.swift */,
 				DE0814C9291541E900D72875 /* LoginViewController.swift */,
+				DE0814DF29164E6C00D72875 /* TasksViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";

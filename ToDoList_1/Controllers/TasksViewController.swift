@@ -5,7 +5,10 @@
 //  Created by Bair Nadtsalov on 5.11.2022.
 //
 
+// TODO: ask user when sign out - Are you sure? Yes/No
+
 import UIKit
+import Firebase
 
 class TasksViewController: UIViewController {
     
@@ -33,12 +36,24 @@ class TasksViewController: UIViewController {
         title = "Tasks"
         view.backgroundColor = .pagesBackgroundColor
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        let signOutButton = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutTapped))
         navigationItem.rightBarButtonItem = addButton
+        navigationItem.leftBarButtonItem = signOutButton
     }
     // MARK: Actions
 
     @objc func addButtonTapped() {
         
+    }
+    
+    @objc func signOutTapped() {
+        
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print(error.localizedDescription)
+        }
+        dismiss(animated: true)
     }
 }
 
