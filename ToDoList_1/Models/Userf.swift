@@ -10,10 +10,10 @@ import Firebase
 
 struct Userf {
     let uid: String
-    let email: String?
+    let email: String
     
     init(user: User) {
         self.uid = user.uid
-        self.email = user.email ?? nil
+        self.email = user.email!
     }
 }

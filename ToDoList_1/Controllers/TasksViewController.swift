@@ -25,6 +25,10 @@ class TasksViewController: UIViewController {
         return tableView
     }()
     
+    private var user: Userf!
+    private var ref: DatabaseReference!
+    private var tasks = [Task]()
+    
 // MARK: - Life cycle
     
     override func viewDidLoad() {
@@ -39,6 +43,13 @@ class TasksViewController: UIViewController {
         let signOutButton = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutTapped))
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = signOutButton
+        
+        //Database
+        guard let currentUser = Auth.auth().currentUser else { return }
+        user = Userf(user: currentUser)
+        ref = Database.database().reference(withPath: "users").child(String(user.uid)).child("tasks")
+        
+        
     }
     // MARK: Actions
 
@@ -46,9 +57,14 @@ class TasksViewController: UIViewController {
         
         let alertController = UIAlertController(title: "New task", message: "What you want to do?", preferredStyle: .alert)
         alertController.addTextField()
-        let addTask = UIAlertAction(title: "Add", style: .default) { _ in
-            guard let textField = alertController.textFields?.first else { return }
-            //
+        let addTask = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+            guard let text = alertController.textFields?.first?.text,
+                  text != "",
+                  let user = self?.user
+            else { return }
+            let task = Task(title: text, userID: user.uid)
+            let taskRef = self?.ref?.child(task.title.lowercased())
+            taskRef?.setValue(task.convertToDictionary())
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         alertController.addAction(addTask)
