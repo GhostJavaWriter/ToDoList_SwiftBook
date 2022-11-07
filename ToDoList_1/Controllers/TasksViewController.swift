@@ -44,6 +44,16 @@ class TasksViewController: UIViewController {
 
     @objc func addButtonTapped() {
         
+        let alertController = UIAlertController(title: "New task", message: "What you want to do?", preferredStyle: .alert)
+        alertController.addTextField()
+        let addTask = UIAlertAction(title: "Add", style: .default) { _ in
+            guard let textField = alertController.textFields?.first else { return }
+            //
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        alertController.addAction(addTask)
+        alertController.addAction(cancel)
+        present(alertController, animated: true)
     }
     
     @objc func signOutTapped() {
