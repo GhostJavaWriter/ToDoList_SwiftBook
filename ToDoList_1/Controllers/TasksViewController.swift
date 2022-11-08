@@ -6,6 +6,7 @@
 //
 
 // TODO: ask user when sign out - Are you sure? Yes/No
+// TODO: add enums for KEY values of tasks and etc. like "completed"
 
 import UIKit
 import Firebase
@@ -108,6 +109,18 @@ class TasksViewController: UIViewController {
 
 extension TasksViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        let task = tasks[indexPath.row]
+        let isCompleted = !task.completed
+        toggleCompletionCheckmark(cell: cell, isCompleted: isCompleted)
+        
+        task.ref?.updateChildValues(["completed": isCompleted])
+    }
+    
+    func toggleCompletionCheckmark(cell: UITableViewCell, isCompleted: Bool) {
+        cell.accessoryType = isCompleted ? .checkmark : .none
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -126,7 +139,10 @@ extension TasksViewController: UITableViewDataSource {
         var contentConfig = cell.defaultContentConfiguration()
         contentConfig.text = taskTitle
         contentConfig.textProperties.color = .white
+        
         cell.contentConfiguration = contentConfig
+        toggleCompletionCheckmark(cell: cell, isCompleted: task.completed)
+        
         return cell
     }
     
@@ -134,5 +150,15 @@ extension TasksViewController: UITableViewDataSource {
         return tasks.count
     }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let task = tasks[indexPath.row]
+            task.ref?.removeValue()
+        }
+    }
 }
 
