@@ -5,12 +5,11 @@
 //  Created by Bair Nadtsalov on 4.11.2022.
 //
 
-// TODO: fix button behavior. It should animate when tapped
 // TODO: add user name for title of tasks page
-// TODO: add alert when user successful register
 // TODO: add enum with errors
-// TODO: ask user when sign out - Are you sure? Yes/No
 // TODO: add enums for KEY values of tasks and etc. like "completed"
+// TODO: think about subviews configuration constants
+// TODO: Add activity controller that shows when tasks are loading
 
 import UIKit
 import Firebase
@@ -20,15 +19,32 @@ class LoginViewController: UIViewController {
     //MARK: - Properties
     
     private var titleLabel = UILabel()
+    
     private var warningLabel: UILabel = {
         let label = UILabel()
         label.alpha = 0
         return label
     }()
+    
     private var emailTextField = UITextField()
     private var passwordTextField = UITextField()
-    private var loginButton = UIButton()
-    private var registerButton = UIButton()
+    
+    private lazy var loginButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Login", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var registerButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Register", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(registerTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private let generalStackView = UIStackView()
     
     //database
@@ -104,6 +120,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func registerTapped() {
+        
         guard let email = emailTextField.text,
               let password = passwordTextField.text,
               email != "",
@@ -115,12 +132,10 @@ class LoginViewController: UIViewController {
         
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] (user, error) in
             
-            guard error == nil,
-                  user != nil
+            guard error == nil, user != nil
             else {
-                let describe = "Error ocured when creating user"
-                self?.displayWarningLabel(with: describe)
-                print(error?.localizedDescription ?? describe)
+                let description = "Error ocured when creating user"
+                self?.displayWarningLabel(with: description)
                 return
             }
             
@@ -128,9 +143,8 @@ class LoginViewController: UIViewController {
                 let userRef = self?.ref.child(uid)
                 userRef?.setValue(["email":user?.user.email])
             } else {
-                //error occure
+                //error occure. Email is not set
             }
-            
         }
     }
     
@@ -160,7 +174,7 @@ class LoginViewController: UIViewController {
         let registerFontSize: CGFloat = 14
         let loginFontSize: CGFloat = 18
         let loginBackground = UIColor(white: 1, alpha: 0.5)
-        let buttonsWidthRation: CGFloat = 0.5
+        let buttonsWidthRatio: CGFloat = 0.5
         let cornerRadius: CGFloat = 5
         
         let labelsTextColor = UIColor.white
@@ -223,20 +237,15 @@ class LoginViewController: UIViewController {
         bottomStackView.spacing = spaceBtwSubviews
         generalStackView.addArrangedSubview(bottomStackView)
         
-        loginButton.translatesAutoresizingMaskIntoConstraints = false
         loginButton.tintColor = labelsTextColor
-        loginButton.setTitle("Login", for: .normal)
         loginButton.backgroundColor = loginBackground
         loginButton.layer.cornerRadius = cornerRadius
         loginButton.titleLabel?.font = UIFont(name: fontName, size: loginFontSize)
-        loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
         bottomStackView.addArrangedSubview(loginButton)
         
         registerButton.tintColor = labelsTextColor
-        registerButton.setTitle("Register", for: .normal)
         registerButton.titleLabel?.font = UIFont(name: fontName, size: registerFontSize)
         registerButton.layer.cornerRadius = cornerRadius
-        registerButton.addTarget(self, action: #selector(registerTapped), for: .touchUpInside)
         bottomStackView.addArrangedSubview(registerButton)
         
         NSLayoutConstraint.activate([
@@ -254,9 +263,9 @@ class LoginViewController: UIViewController {
                                                      multiplier: textFieldsWidthRatio),
             passwordTextField.heightAnchor.constraint(equalToConstant: textFieldsHeight),
             loginButton.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
-                                               multiplier: buttonsWidthRation),
+                                               multiplier: buttonsWidthRatio),
             registerButton.widthAnchor.constraint(equalTo: generalStackView.widthAnchor,
-                                                  multiplier: buttonsWidthRation),
+                                                  multiplier: buttonsWidthRatio),
         ])
     }
 }
