@@ -24,7 +24,7 @@ struct Task {
     init(snapshot: DataSnapshot) {
 
         let snapshotValue = snapshot.value as? [String: AnyObject]
-        title = snapshotValue?["title"] as? String ?? "unknown"
+        title = snapshotValue?["title"] as? String ?? "unknown title"
         userID = snapshotValue?["userId"] as? String ?? "error id"
         completed = snapshotValue?["completed"] as? Bool ?? false
         ref = snapshot.ref

@@ -5,9 +5,6 @@
 //  Created by Bair Nadtsalov on 5.11.2022.
 //
 
-// TODO: ask user when sign out - Are you sure? Yes/No
-// TODO: add enums for KEY values of tasks and etc. like "completed"
-
 import UIKit
 import Firebase
 
@@ -26,8 +23,8 @@ class TasksViewController: UIViewController {
         return tableView
     }()
     
-    private var user: Userf!
-    private var ref: DatabaseReference!
+    private var user: Userf?
+    private var ref: DatabaseReference?
     private var tasks = [Task]()
     
 // MARK: - Life cycle
@@ -48,45 +45,87 @@ class TasksViewController: UIViewController {
         //Database
         guard let currentUser = Auth.auth().currentUser else { return }
         user = Userf(user: currentUser)
-        ref = Database.database().reference(withPath: "users").child(String(user.uid)).child("tasks")
         
+        if let _user = user {
+            ref = Database.database().reference(withPath: "users").child(String(_user.uid)).child("tasks")
+        } else {
+            //error occure
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        ref.observe(.value) { [weak self] snapshot in
-            var _tasks = [Task]()
-            for item in snapshot.children {
-                if let task = item as? DataSnapshot {
-                    _tasks.append(Task(snapshot: task))
+        if let _ref = ref {
+            _ref.observe(.value) { [weak self] snapshot in
+                var _tasks = [Task]()
+                for item in snapshot.children {
+                    if let task = item as? DataSnapshot {
+                        _tasks.append(Task(snapshot: task))
+                    }
                 }
+                self?.tasks = _tasks
+                self?.tableView.reloadData()
             }
-            self?.tasks = _tasks
-            self?.tableView.reloadData()
+        } else {
+            print("object reference is nil")
+            //error occure
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        ref.removeAllObservers()
+        if let _ref = ref {
+            _ref.removeAllObservers()
+        } else {
+            print("object reference is nil")
+            //error occure
+        }
     }
     
-    // MARK: Actions
+// MARK: Support functions
+    
+    private func isAllowedText(text: String) -> Bool {
+        //"(child:) Must be a non-empty string and not contain '.' '#' '$' '[' or ']'"
+        if text == "" { return false }
+        
+        for symb in text {
+            switch symb {
+            case ".","#","$","[","]": return false
+            default: return true
+            }
+        }
+        return true
+    }
+    
+    private func showErrorAlert(describing: String) {
+        let alertController = UIAlertController(title: "Error", message: describing, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default))
+        present(alertController, animated: true)
+    }
+    
+// MARK: Actions
 
     @objc func addButtonTapped() {
         
         let alertController = UIAlertController(title: "New task", message: "What you want to do?", preferredStyle: .alert)
         alertController.addTextField()
         let addTask = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-            guard let text = alertController.textFields?.first?.text,
-                  text != "",
-                  let user = self?.user
-            else { return }
-            let task = Task(title: text, userID: user.uid)
-            let taskRef = self?.ref?.child(task.title.lowercased())
-            taskRef?.setValue(task.convertToDictionary())
+            
+            guard let _self = self else { return }
+            
+            guard let user = _self.user else { return }
+            
+            guard let text = alertController.textFields?.first?.text else { return }
+            if _self.isAllowedText(text: text) {
+                let task = Task(title: text, userID: user.uid)
+                let taskRef = self?.ref?.child(task.title.lowercased())
+                
+                taskRef?.setValue(task.convertToDictionary())
+            } else {
+                _self.showErrorAlert(describing: "Text shouldn't contain an empty string or symbols like '.' '#' '$' '[' ']')")
+            }
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         alertController.addAction(addTask)
