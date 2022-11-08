@@ -17,6 +17,8 @@
 		DE0814E029164E6C00D72875 /* TasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0814DF29164E6C00D72875 /* TasksViewController.swift */; };
 		DE0814E229164F2E00D72875 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0814E129164F2E00D72875 /* UIColor+Extension.swift */; };
 		DE0814E7291757CE00D72875 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE0814E6291757CE00D72875 /* GoogleService-Info.plist */; };
+		DEAA14ED29190179008BC151 /* Userf.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAA14EC29190179008BC151 /* Userf.swift */; };
+		DEAA14EF29190182008BC151 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAA14EE29190182008BC151 /* Task.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		DE0814DF29164E6C00D72875 /* TasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewController.swift; sourceTree = "<group>"; };
 		DE0814E129164F2E00D72875 /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		DE0814E6291757CE00D72875 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DEAA14EC29190179008BC151 /* Userf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userf.swift; sourceTree = "<group>"; };
+		DEAA14EE29190182008BC151 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +66,6 @@
 				7148D1B9DB75D574C3F8E3A0 /* Pods-ToDoList_1.debug.xcconfig */,
 				43090411027EEB521D5809DC /* Pods-ToDoList_1.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -90,6 +93,7 @@
 			children = (
 				DE0814D3291541EA00D72875 /* Info.plist */,
 				DE0814E6291757CE00D72875 /* GoogleService-Info.plist */,
+				DEAA14F029190189008BC151 /* Models */,
 				DE0814E3291650E000D72875 /* Controllers */,
 				DE0814E4291650FF00D72875 /* Extensions */,
 				DE0814E52916523B00D72875 /* Supportin files */,
@@ -100,8 +104,8 @@
 		DE0814E3291650E000D72875 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				DE0814DF29164E6C00D72875 /* TasksViewController.swift */,
 				DE0814C9291541E900D72875 /* LoginViewController.swift */,
+				DE0814DF29164E6C00D72875 /* TasksViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -123,6 +127,15 @@
 				DE0814C5291541E900D72875 /* AppDelegate.swift */,
 			);
 			path = "Supportin files";
+			sourceTree = "<group>";
+		};
+		DEAA14F029190189008BC151 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DEAA14EC29190179008BC151 /* Userf.swift */,
+				DEAA14EE29190182008BC151 /* Task.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -243,8 +256,10 @@
 			files = (
 				DE0814CA291541E900D72875 /* LoginViewController.swift in Sources */,
 				DE0814E029164E6C00D72875 /* TasksViewController.swift in Sources */,
+				DEAA14ED29190179008BC151 /* Userf.swift in Sources */,
 				DE0814C6291541E900D72875 /* AppDelegate.swift in Sources */,
 				DE0814C8291541E900D72875 /* SceneDelegate.swift in Sources */,
+				DEAA14EF29190182008BC151 /* Task.swift in Sources */,
 				DE0814E229164F2E00D72875 /* UIColor+Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

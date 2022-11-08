@@ -6,19 +6,31 @@
 //
 
 // TODO: fix button behavior. It should animate when tapped
+// TODO: add user name for title of tasks page
+// TODO: add alert when user successful register
+// TODO: fix force unwrapes
 
 import UIKit
+import Firebase
 
 class LoginViewController: UIViewController {
     
     //MARK: - Properties
     
     private var titleLabel = UILabel()
-    private var warningLabel = UILabel()
+    private var warningLabel: UILabel = {
+        let label = UILabel()
+        label.alpha = 0
+        return label
+    }()
     private var emailTextField = UITextField()
     private var passwordTextField = UITextField()
     private var loginButton = UIButton()
     private var registerButton = UIButton()
+    private let generalStackView = UIStackView()
+    
+    //database
+    private var ref: DatabaseReference!
 
     //MARK: - Life cycle
     
@@ -27,17 +39,108 @@ class LoginViewController: UIViewController {
         
         view.backgroundColor = .pagesBackgroundColor
         configureSubviews()
+        
+        // Database
+        ref = Database.database().reference(withPath: "users")
+        
+        // Check user authentication
+        Auth.auth().addStateDidChangeListener { [weak self] auth, user in
+            if user != nil {
+                self?.showTasksViewController()
+            }
+        }
+        
+        // Add observers to adjust view when keyboard will show and hide
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        emailTextField.text = ""
+        passwordTextField.text = ""
     }
     
     //MARK: - Actions
     
-    @objc func loginTapped() {
+    private func displayWarningLabel(with text: String) {
+        warningLabel.text = text
+        warningLabel.alpha = 1
+    }
+    
+    private func showTasksViewController() {
         let navController = UINavigationController(rootViewController: TasksViewController())
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)
     }
+    
+    @objc private func loginTapped() {
+        
+        guard let email = emailTextField.text,
+              let password = passwordTextField.text,
+              email != "",
+              password != ""
+        else {
+            displayWarningLabel(with: "Info is incorrect")
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self] (user, error) in
+            if let error = error {
+                self?.displayWarningLabel(with: "Error: \(error)")
+                return
+            }
+            if let _ = user {
+                self?.showTasksViewController()
+                return
+            }
+            
+            self?.displayWarningLabel(with: "No such user or password is incorrect")
+        })
+    }
+    
+    @objc private func registerTapped() {
+        guard let email = emailTextField.text,
+              let password = passwordTextField.text,
+              email != "",
+              password != ""
+        else {
+            displayWarningLabel(with: "Empty field(s)")
+            return
+        }
+        
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] (user, error) in
+            
+            guard error == nil,
+                  user != nil
+            else {
+                let desribe = "Error ocured when creating user"
+                self?.displayWarningLabel(with: desribe)
+                print(error?.localizedDescription ?? desribe)
+                return
+            }
+            
+            let userRef = self?.ref.child((user?.user.uid)!)
+            userRef?.setValue(["email":user?.user.email])
+        }
+    }
+    
+    @objc private func keyboardWillShow(notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        guard let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
 
-    //MARK: - Support functions
+        let shift = generalStackView.frame.size.height + generalStackView.frame.origin.y - keyboardFrame.origin.y
+        
+        view.frame.origin.y = -shift
+    }
+    
+    @objc private func keyboardWillHide(notification: Notification) {
+        view.frame.origin.y = .zero
+    }
+
+    //MARK: - Configure subviews
     
     private func configureSubviews() {
         
@@ -62,8 +165,7 @@ class LoginViewController: UIViewController {
         let spaceBtwSubviews: CGFloat = 10
         let generalStackViewPadding: CGFloat = 40
         let textFieldsWidthRatio: CGFloat = 0.75
-        
-        let generalStackView = UIStackView()
+                
         generalStackView.translatesAutoresizingMaskIntoConstraints = false
         generalStackView.alignment = .center
         generalStackView.axis = .vertical
@@ -94,7 +196,6 @@ class LoginViewController: UIViewController {
         middleStackView.spacing = spaceBtwSubviews
         generalStackView.addArrangedSubview(middleStackView)
         
-        //TODO: fix placeholder text edge insets
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
         emailTextField.placeholder = "Email"
         emailTextField.clearButtonMode = .always
@@ -128,6 +229,7 @@ class LoginViewController: UIViewController {
         registerButton.setTitle("Register", for: .normal)
         registerButton.titleLabel?.font = UIFont(name: fontName, size: registerFontSize)
         registerButton.layer.cornerRadius = cornerRadius
+        registerButton.addTarget(self, action: #selector(registerTapped), for: .touchUpInside)
         bottomStackView.addArrangedSubview(registerButton)
         
         NSLayoutConstraint.activate([

@@ -5,7 +5,11 @@
 //  Created by Bair Nadtsalov on 5.11.2022.
 //
 
+// TODO: ask user when sign out - Are you sure? Yes/No
+// TODO: add enums for KEY values of tasks and etc. like "completed"
+
 import UIKit
+import Firebase
 
 class TasksViewController: UIViewController {
     
@@ -22,6 +26,10 @@ class TasksViewController: UIViewController {
         return tableView
     }()
     
+    private var user: Userf!
+    private var ref: DatabaseReference!
+    private var tasks = [Task]()
+    
 // MARK: - Life cycle
     
     override func viewDidLoad() {
@@ -33,12 +41,67 @@ class TasksViewController: UIViewController {
         title = "Tasks"
         view.backgroundColor = .pagesBackgroundColor
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        let signOutButton = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutTapped))
         navigationItem.rightBarButtonItem = addButton
+        navigationItem.leftBarButtonItem = signOutButton
+        
+        //Database
+        guard let currentUser = Auth.auth().currentUser else { return }
+        user = Userf(user: currentUser)
+        ref = Database.database().reference(withPath: "users").child(String(user.uid)).child("tasks")
+        
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        ref.observe(.value) { [weak self] snapshot in
+            var _tasks = [Task]()
+            for item in snapshot.children {
+                if let task = item as? DataSnapshot {
+                    _tasks.append(Task(snapshot: task))
+                }
+            }
+            self?.tasks = _tasks
+            self?.tableView.reloadData()
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        ref.removeAllObservers()
+    }
+    
     // MARK: Actions
 
     @objc func addButtonTapped() {
         
+        let alertController = UIAlertController(title: "New task", message: "What you want to do?", preferredStyle: .alert)
+        alertController.addTextField()
+        let addTask = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+            guard let text = alertController.textFields?.first?.text,
+                  text != "",
+                  let user = self?.user
+            else { return }
+            let task = Task(title: text, userID: user.uid)
+            let taskRef = self?.ref?.child(task.title.lowercased())
+            taskRef?.setValue(task.convertToDictionary())
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        alertController.addAction(addTask)
+        alertController.addAction(cancel)
+        present(alertController, animated: true)
+    }
+    
+    @objc func signOutTapped() {
+        
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print(error.localizedDescription)
+        }
+        dismiss(animated: true)
     }
 }
 
@@ -46,6 +109,18 @@ class TasksViewController: UIViewController {
 
 extension TasksViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        let task = tasks[indexPath.row]
+        let isCompleted = !task.completed
+        toggleCompletionCheckmark(cell: cell, isCompleted: isCompleted)
+        
+        task.ref?.updateChildValues(["completed": isCompleted])
+    }
+    
+    func toggleCompletionCheckmark(cell: UITableViewCell, isCompleted: Bool) {
+        cell.accessoryType = isCompleted ? .checkmark : .none
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -55,16 +130,35 @@ extension TasksViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath)
         cell.backgroundColor = .clear
+        
+        //unwrap Task
+        let task = tasks[indexPath.row]
+        let taskTitle = task.title
+        
+        
         var contentConfig = cell.defaultContentConfiguration()
-        contentConfig.text = "Cell number \(indexPath.row)"
+        contentConfig.text = taskTitle
         contentConfig.textProperties.color = .white
+        
         cell.contentConfiguration = contentConfig
+        toggleCompletionCheckmark(cell: cell, isCompleted: task.completed)
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return tasks.count
     }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let task = tasks[indexPath.row]
+            task.ref?.removeValue()
+        }
+    }
 }
 

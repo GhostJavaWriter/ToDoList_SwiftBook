@@ -55,9 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  [localPlayer generateIdentityVerificationSignatureWithCompletionHandler:^(
-                   NSURL *publicKeyURL, NSData *signature, NSData *salt, uint64_t timestamp,
-                   NSError *error) {
+  [localPlayer fetchItemsForIdentityVerificationSignature:^(NSURL *publicKeyURL, NSData     *signature, NSData *salt, uint64_t timestamp, NSError *error) {
+
     if (error) {
       if (completion) {
         completion(nil, error);
