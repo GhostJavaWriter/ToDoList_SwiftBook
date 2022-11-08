@@ -14,6 +14,6 @@ struct Userf {
     
     init(user: User) {
         self.uid = user.uid
-        self.email = user.email!
+        self.email = user.email ?? "email not specified"
     }
 }

@@ -8,7 +8,9 @@
 // TODO: fix button behavior. It should animate when tapped
 // TODO: add user name for title of tasks page
 // TODO: add alert when user successful register
-// TODO: fix force unwrapes
+// TODO: add enum with errors
+// TODO: ask user when sign out - Are you sure? Yes/No
+// TODO: add enums for KEY values of tasks and etc. like "completed"
 
 import UIKit
 import Firebase
@@ -116,14 +118,19 @@ class LoginViewController: UIViewController {
             guard error == nil,
                   user != nil
             else {
-                let desribe = "Error ocured when creating user"
-                self?.displayWarningLabel(with: desribe)
-                print(error?.localizedDescription ?? desribe)
+                let describe = "Error ocured when creating user"
+                self?.displayWarningLabel(with: describe)
+                print(error?.localizedDescription ?? describe)
                 return
             }
             
-            let userRef = self?.ref.child((user?.user.uid)!)
-            userRef?.setValue(["email":user?.user.email])
+            if let uid = user?.user.uid {
+                let userRef = self?.ref.child(uid)
+                userRef?.setValue(["email":user?.user.email])
+            } else {
+                //error occure
+            }
+            
         }
     }
     
