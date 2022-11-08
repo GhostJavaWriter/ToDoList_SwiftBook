@@ -8,6 +8,7 @@
 // TODO: fix button behavior. It should animate when tapped
 // TODO: add user name for title of tasks page
 // TODO: add alert when user successful register
+// TODO: fix force unwrapes
 
 import UIKit
 import Firebase
